@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {Bricolage_Grotesque, Hanken_Grotesk, Space_Mono} from "next/font/google";
+import {GoogleAnalytics} from "@next/third-parties/google";
 import "./globals.css";
 
 import {client} from "@/sanity/lib/client";
@@ -49,6 +50,9 @@ export default async function RootLayout({
         <IconSprite />
         <Chrome settings={settings}>{children}</Chrome>
       </body>
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
+      )}
     </html>
   );
 }
