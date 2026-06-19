@@ -24,7 +24,21 @@
       "Bash(python3 measure_hero.py)",
       "Bash(curl -s \"http://localhost:3000/\")",
       "Bash(pkill -f \"next-server\")",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Read(//tmp/**)",
+      "Bash(grep -oE '<script[^>]*id=\"_next-ga[^>]*>[^<]{0,300}' /tmp/page.html)",
+      "Bash(grep *)",
+      "Bash(vercel --version)",
+      "Bash(command -v vercel)",
+      "Bash(npx --no-install vercel --version)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(curl -s https://omniatherapies.com)",
+      "Bash(curl *)",
+      "Bash(npx eslint *)"
     ]
   }
 }

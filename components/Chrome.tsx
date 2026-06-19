@@ -13,8 +13,9 @@ type Props = {
 export function Chrome({settings, children}: Props) {
   const pathname = usePathname();
 
-  // Appointment page renders without global nav/footer (focused booking flow).
-  if (pathname === "/appointment") {
+  // Appointment and free-session pages render without global nav/footer
+  // (focused booking and ad-conversion flows with their own minimal chrome).
+  if (pathname === "/appointment" || pathname === "/free-session") {
     return <>{children}</>;
   }
 
