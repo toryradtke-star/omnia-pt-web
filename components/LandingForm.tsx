@@ -33,6 +33,26 @@ type Values = {name: string; phone: string; email: string; topic: string; messag
 
 const EMPTY: Values = {name: "", phone: "", email: "", topic: "", message: ""};
 
+let leadConversionFired = false;
+
+function fireLeadConversion() {
+  if (leadConversionFired) return;
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  leadConversionFired = true;
+
+  window.gtag("event", "conversion", {
+    send_to: "AW-18242550859/hg8QCLqihMUcEMv43PpD",
+    value: 49.0,
+    currency: "USD",
+  });
+
+  window.gtag("event", "generate_lead", {
+    send_to: "G-YZRX1S1WNQ",
+    value: 49.0,
+    currency: "USD",
+  });
+}
+
 export function LandingForm() {
   const [values, setValues] = useState<Values>(EMPTY);
   const [errors, setErrors] = useState<Record<FieldId, boolean>>({
@@ -96,8 +116,10 @@ export function LandingForm() {
       .then((r) => r.json())
       .then((data) => {
         setSending(false);
-        if (data && data.success) setSubmitted(true);
-        else setSubmitError(true);
+        if (data && data.success) {
+          fireLeadConversion();
+          setSubmitted(true);
+        } else setSubmitError(true);
       })
       .catch(() => {
         setSending(false);

@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import {Bricolage_Grotesque, Hanken_Grotesk, Space_Mono} from "next/font/google";
 import {GoogleAnalytics} from "@next/third-parties/google";
+import Script from "next/script";
 import "./globals.css";
 
 import {client} from "@/sanity/lib/client";
@@ -51,7 +52,16 @@ export default async function RootLayout({
         <Chrome settings={settings}>{children}</Chrome>
       </body>
       {process.env.NODE_ENV === "production" && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
+        <>
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
+          <Script id="gads-config" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('config', 'AW-18242550859');
+            `}
+          </Script>
+        </>
       )}
     </html>
   );
