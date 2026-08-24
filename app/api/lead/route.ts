@@ -196,7 +196,11 @@ async function createOpportunity(
     const rawValue = process.env.GHL_OPPORTUNITY_VALUE;
     const monetaryValue = rawValue ? Number(rawValue) : undefined;
 
-    const response = await fetch(`${GHL_BASE}/opportunities/`, {
+    // Upsert, not create: GHL rejects a second opportunity for the same
+    // contact in the same pipeline with "Can not create duplicate
+    // opportunity", so a returning enquirer would otherwise log an error on
+    // every submission.
+    const response = await fetch(`${GHL_BASE}/opportunities/upsert`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -221,9 +225,9 @@ async function createOpportunity(
       return `failed: ${response.status}`;
     }
 
-    return "created";
+    return "upserted";
   } catch (error) {
-    console.error("[lead] Opportunity create threw:", error);
+    console.error("[lead] Opportunity upsert threw:", error);
     return "failed: exception";
   }
 }
