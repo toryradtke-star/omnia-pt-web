@@ -132,6 +132,49 @@ async function resolvePipeline(
 }
 
 /**
+ * Tag applied to every website lead. A GHL workflow watches for this tag being
+ * added and sends the internal "new lead" alert — the Contact Created trigger
+ * can't filter on Contact source, so the tag is what makes the alert fire for
+ * website enquiries only and not for ad traffic.
+ */
+const LEAD_TAG = "website-lead";
+
+/**
+ * Adds the tag via the dedicated endpoint, which appends. The upsert call must
+ * never carry a `tags` array: there it replaces the whole set and would strip
+ * dryneedlingad / ultrasoundad off returning contacts.
+ */
+async function addLeadTag(
+  contactId: string,
+  token: string,
+  version: string,
+): Promise<string> {
+  try {
+    const response = await fetch(`${GHL_BASE}/contacts/${contactId}/tags`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Version: version,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({tags: [LEAD_TAG]}),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error(`[lead] Tag add failed (${response.status}): ${detail}`);
+      return `failed: ${response.status}`;
+    }
+
+    return "added";
+  } catch (error) {
+    console.error("[lead] Tag add threw:", error);
+    return "failed: exception";
+  }
+}
+
+/**
  * Opens an opportunity for the lead. Returns a short status string for the
  * response body rather than throwing — losing the pipeline entry is annoying,
  * losing the lead is not acceptable.
@@ -272,16 +315,20 @@ export async function POST(request: Request) {
       const data = await response.json().catch(() => null);
       const contactId = data?.contact?.id ?? data?.id ?? null;
 
-      // Best-effort: the lead is already safe in Contacts, so a pipeline
-      // problem must never turn into a failed submission.
-      const opportunity = contactId
-        ? await createOpportunity(contactId, name, token, version)
-        : "skipped: no contact id returned";
+      // Best-effort follow-ups: the lead is already safe in Contacts, so
+      // neither of these may turn into a failed submission.
+      const [tag, opportunity] = contactId
+        ? await Promise.all([
+            addLeadTag(contactId, token, version),
+            createOpportunity(contactId, name, token, version),
+          ])
+        : (["skipped: no contact id returned", "skipped: no contact id returned"] as const);
 
       return NextResponse.json({
         ok: true,
         created: data?.new ?? null,
         apiVersion: version,
+        tag,
         opportunity,
       });
     }
