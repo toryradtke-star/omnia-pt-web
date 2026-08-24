@@ -73,6 +73,118 @@ function splitName(full: string): {firstName: string; lastName: string} {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Where a website enquiry lands. "Contact Log" is the intake pipeline — its
+ * first stage is literally "New Leads", and it feeds the Contacted 1x..5x
+ * follow-up cadence. "Blake's Patients" is the clinical journey (Eval
+ * scheduled, Dry Needling, Discharged) and has no intake stage, so a fresh
+ * enquiry does not belong there.
+ *
+ * Resolved by name rather than hard-coded id so renaming or reordering stages
+ * in GHL doesn't silently break this.
+ */
+const PIPELINE_NAME = "Contact Log";
+const STAGE_NAME = "New Leads";
+
+type PipelineTarget = {pipelineId: string; stageId: string};
+
+// Pipelines change rarely; resolve once per server instance.
+let pipelineCache: PipelineTarget | null = null;
+
+async function resolvePipeline(
+  token: string,
+  version: string,
+): Promise<PipelineTarget | null> {
+  if (pipelineCache) return pipelineCache;
+
+  const locationId = process.env.GHL_LOCATION_ID;
+  const response = await fetch(
+    `${GHL_BASE}/opportunities/pipelines?locationId=${locationId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Version: version,
+        Accept: "application/json",
+      },
+    },
+  );
+
+  if (!response.ok) {
+    console.error(`[lead] Could not list pipelines (${response.status}).`);
+    return null;
+  }
+
+  const data = await response.json().catch(() => null);
+  const pipelines: Array<{id: string; name: string; stages?: Array<{id: string; name: string}>}> =
+    data?.pipelines ?? [];
+
+  const pipeline = pipelines.find((p) => p.name === PIPELINE_NAME);
+  const stage = pipeline?.stages?.find((s) => s.name === STAGE_NAME);
+  if (!pipeline || !stage) {
+    console.error(
+      `[lead] Pipeline "${PIPELINE_NAME}" / stage "${STAGE_NAME}" not found in GHL.`,
+    );
+    return null;
+  }
+
+  pipelineCache = {pipelineId: pipeline.id, stageId: stage.id};
+  return pipelineCache;
+}
+
+/**
+ * Opens an opportunity for the lead. Returns a short status string for the
+ * response body rather than throwing — losing the pipeline entry is annoying,
+ * losing the lead is not acceptable.
+ *
+ * No monetary value is sent unless GHL_OPPORTUNITY_VALUE is configured. Every
+ * existing opportunity sits at $0 and inventing a figure would corrupt revenue
+ * reporting more than leaving it blank does.
+ */
+async function createOpportunity(
+  contactId: string,
+  name: string,
+  token: string,
+  version: string,
+): Promise<string> {
+  try {
+    const target = await resolvePipeline(token, version);
+    if (!target) return "skipped: pipeline not resolved";
+
+    const rawValue = process.env.GHL_OPPORTUNITY_VALUE;
+    const monetaryValue = rawValue ? Number(rawValue) : undefined;
+
+    const response = await fetch(`${GHL_BASE}/opportunities/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Version: version,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        locationId: process.env.GHL_LOCATION_ID,
+        pipelineId: target.pipelineId,
+        pipelineStageId: target.stageId,
+        contactId,
+        name,
+        status: "open",
+        ...(Number.isFinite(monetaryValue) && {monetaryValue}),
+      }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      console.error(`[lead] Opportunity create failed (${response.status}): ${detail}`);
+      return `failed: ${response.status}`;
+    }
+
+    return "created";
+  } catch (error) {
+    console.error("[lead] Opportunity create threw:", error);
+    return "failed: exception";
+  }
+}
+
 export async function POST(request: Request) {
   const token = process.env.GHL_API_TOKEN;
   const locationId = process.env.GHL_LOCATION_ID;
@@ -158,10 +270,19 @@ export async function POST(request: Request) {
 
     if (response.ok) {
       const data = await response.json().catch(() => null);
+      const contactId = data?.contact?.id ?? data?.id ?? null;
+
+      // Best-effort: the lead is already safe in Contacts, so a pipeline
+      // problem must never turn into a failed submission.
+      const opportunity = contactId
+        ? await createOpportunity(contactId, name, token, version)
+        : "skipped: no contact id returned";
+
       return NextResponse.json({
         ok: true,
         created: data?.new ?? null,
         apiVersion: version,
+        opportunity,
       });
     }
 
