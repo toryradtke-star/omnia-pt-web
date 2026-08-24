@@ -17,6 +17,8 @@ type Props = {formNote: string};
 export function ContactForm({formNote}: Props) {
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   function clearError(name: keyof Errors) {
     if (errors[name]) setErrors((e) => ({...e, [name]: undefined}));
@@ -24,6 +26,7 @@ export function ContactForm({formNote}: Props) {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSubmitError(false);
     const form = e.currentTarget;
     const data = new FormData(form);
     const next: Errors = {};
@@ -34,16 +37,40 @@ export function ContactForm({formNote}: Props) {
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
-    // TODO: wire to an actual form endpoint
-    setSubmitted(true);
-    form.reset();
-    requestAnimationFrame(() => {
-      const banner = document.getElementById("success");
-      if (banner) {
-        const top = banner.getBoundingClientRect().top + window.scrollY - 120;
-        window.scrollTo({top, behavior: "smooth"});
-      }
-    });
+    setSending(true);
+    fetch("/api/lead", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: data.get("name"),
+        email: data.get("email"),
+        phone: data.get("phone"),
+        topic: data.get("topic"),
+        message: data.get("message"),
+        source: "contact-page",
+      }),
+    })
+      .then((r) => {
+        setSending(false);
+        // Only claim success once the lead is actually stored.
+        if (!r.ok) {
+          setSubmitError(true);
+          return;
+        }
+        setSubmitted(true);
+        form.reset();
+        requestAnimationFrame(() => {
+          const banner = document.getElementById("success");
+          if (banner) {
+            const top = banner.getBoundingClientRect().top + window.scrollY - 120;
+            window.scrollTo({top, behavior: "smooth"});
+          }
+        });
+      })
+      .catch(() => {
+        setSending(false);
+        setSubmitError(true);
+      });
   }
 
   return (
@@ -118,10 +145,20 @@ export function ContactForm({formNote}: Props) {
             <div className="msg">{errors.message ?? ""}</div>
           </div>
         </div>
-        <button className="btn btn--accent btn--lg" type="submit">
-          Send message <span className="arr">→</span>
+        <button className="btn btn--accent btn--lg" type="submit" disabled={sending}>
+          {sending ? "Sending…" : (
+            <>
+              Send message <span className="arr">→</span>
+            </>
+          )}
         </button>
         <p className="form-note">{formNote}</p>
+        {submitError && (
+          <p className="form-note" role="alert">
+            Something went wrong and your message wasn&apos;t sent. Please call{" "}
+            <a href="tel:+12184990806">(218)&nbsp;499-0806</a> or email us directly.
+          </p>
+        )}
       </form>
     </>
   );

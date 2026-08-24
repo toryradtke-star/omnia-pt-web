@@ -88,38 +88,30 @@ export function LandingForm() {
       return;
     }
 
-    const ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
-
-    // No key configured → validate-only, show success so the page still works.
-    if (!ACCESS_KEY || ACCESS_KEY.startsWith("YOUR-WEB3FORMS")) {
-      setSubmitted(true);
-      return;
-    }
-
     const payload = {
-      access_key: ACCESS_KEY,
-      subject: `New free-session request — ${values.name.trim()}`,
-      from_name: "Omnia Landing Page",
       name: values.name.trim(),
       email: values.email.trim(),
       phone: values.phone.trim(),
       topic: values.topic,
-      message: values.message.trim() || "(no message)",
+      message: values.message.trim(),
+      source: "free-session",
     };
 
     setSending(true);
-    fetch("https://api.web3forms.com/submit", {
+    fetch("/api/lead", {
       method: "POST",
-      headers: {"Content-Type": "application/json", Accept: "application/json"},
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify(payload),
     })
-      .then((r) => r.json())
-      .then((data) => {
+      .then((r) => {
         setSending(false);
-        if (data && data.success) {
-          fireLeadConversion();
-          setSubmitted(true);
-        } else setSubmitError(true);
+        // The conversion only counts once the lead is really in the CRM.
+        if (!r.ok) {
+          setSubmitError(true);
+          return;
+        }
+        fireLeadConversion();
+        setSubmitted(true);
       })
       .catch(() => {
         setSending(false);
