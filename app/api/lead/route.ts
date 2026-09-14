@@ -4,7 +4,7 @@ import {NextResponse} from "next/server";
  * Lead intake → GoHighLevel.
  *
  * Both site forms (/contact and /free-session) post here. We upsert the contact
- * into the Omnia sub-account; a GHL workflow keyed off `source` handles tagging
+ * into the client sub-account; a GHL workflow keyed off `source` handles tagging
  * and pipeline placement.
  *
  * Deliberately does NOT send `tags`: the upsert endpoint treats that field as a
@@ -21,17 +21,17 @@ const GHL_BASE = "https://services.leadconnectorhq.com";
 const API_VERSIONS = ["v3", "2021-07-28"] as const;
 
 /**
- * Site field → GHL custom field key, verified against Settings → Custom Fields.
- * Note the missing underscore in "painissues" — GHL stripped the slash out of
- * "pain/issues" when it generated the key. An unrecognized key is accepted with
- * a 200 and the value silently dropped, so these are copied, not guessed.
+ * Site field → GHL custom field key, copied from Settings → Custom Fields.
  *
- * `topic` has no home yet. The obvious candidate — "What concerns would you
- * like help with?" — only accepts Improving balance / Preventing falls /
- * Strength & mobility / Other, which is a falls-prevention ad funnel and shares
- * nothing with the site's service menu. Rather than post values that field
- * would reject, we prepend the topic to the free-text notes below. Swap to a
- * dedicated field once one exists whose options match the site's list.
+ * These are copied rather than guessed on purpose: GHL accepts an unrecognized
+ * field key with a 200 and silently drops the value, so a typo looks exactly
+ * like success while losing the data. (Note the missing underscore — GHL strips
+ * slashes when it generates a key from a field label.)
+ *
+ * `topic` has no matching field. The nearest existing one is a fixed-option
+ * list built for a different ad funnel, and posting a value it would reject
+ * helps nobody, so the topic is prepended to the free-text notes instead.
+ * Swap to a dedicated field once one exists whose options match the site.
  */
 const FIELD_KEYS = {
   notes: "which_area_are_you_having_painissues",
@@ -74,14 +74,14 @@ function splitName(full: string): {firstName: string; lastName: string} {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Where a website enquiry lands. "Contact Log" is the intake pipeline — its
- * first stage is literally "New Leads", and it feeds the Contacted 1x..5x
- * follow-up cadence. "Blake's Patients" is the clinical journey (Eval
- * scheduled, Dry Needling, Discharged) and has no intake stage, so a fresh
- * enquiry does not belong there.
+ * Where a website enquiry lands: the intake pipeline, at its first stage, which
+ * feeds the follow-up cadence. The account also has a separate delivery
+ * pipeline for existing clients; that one has no intake stage, so a fresh
+ * enquiry does not belong in it.
  *
- * Resolved by name rather than hard-coded id so renaming or reordering stages
- * in GHL doesn't silently break this.
+ * Resolved by name rather than by hard-coded id so that renaming or reordering
+ * stages in GHL surfaces as a clear failure instead of silently mis-filing
+ * leads into whatever id happens to still exist.
  */
 const PIPELINE_NAME = "Contact Log";
 const STAGE_NAME = "New Leads";
