@@ -248,7 +248,7 @@ export default function FreeSessionPage() {
             <div className={styles.footerCol}>
               <h4>Visit</h4>
               <p>
-                2121 E 5th St<br />
+                1308 Tower Ave<br />
                 Superior, WI 54880
               </p>
               <p>Superior · Duluth · Virtual</p>
