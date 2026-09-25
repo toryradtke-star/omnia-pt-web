@@ -52,6 +52,13 @@ export function Footer({settings, showAddress = false}: Props) {
         </div>
         <div className="footer__bottom">
           <span>{settings.copyrightLine}</span>
+          {/* Legal links live in code, not in Sanity: they must never be
+              editable away, and the SMS pages are referenced by the carrier
+              registration. */}
+          <nav className="footer__legal" aria-label="Legal">
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <Link href="/sms-terms">SMS Terms &amp; Conditions</Link>
+          </nav>
           <span>{settings.serviceArea}</span>
         </div>
       </div>

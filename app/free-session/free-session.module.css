@@ -287,6 +287,9 @@
   display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
   font-family: var(--font-mono); font-size: .76rem; color: rgba(243,238,225,.56); letter-spacing: .04em;
 }
+.footerLegal { display: flex; gap: 18px; flex-wrap: wrap; }
+.footerLegal a { color: rgba(243,238,225,.72); text-decoration: underline; text-underline-offset: 3px; transition: color .3s var(--ease); }
+.footerLegal a:hover { color: #fff; }
 
 /* ============================================================
    STICKY MOBILE CTA

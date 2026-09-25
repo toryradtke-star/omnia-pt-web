@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import styles from "@/app/free-session/free-session.module.css";
+import {SmsConsent} from "./SmsConsent";
 
 type FieldId = "name" | "phone" | "email" | "topic";
 
@@ -58,6 +59,7 @@ export function LandingForm() {
   const [errors, setErrors] = useState<Record<FieldId, boolean>>({
     name: false, phone: false, email: false, topic: false,
   });
+  const [smsConsent, setSmsConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -94,6 +96,7 @@ export function LandingForm() {
       phone: values.phone.trim(),
       topic: values.topic,
       message: values.message.trim(),
+      smsConsent,
       source: "free-session",
     };
 
@@ -223,6 +226,11 @@ export function LandingForm() {
             onChange={(e) => update("message", e.target.value)}
           />
         </div>
+        <SmsConsent
+          id="f-sms-consent"
+          checked={smsConsent}
+          onChange={setSmsConsent}
+        />
       </div>
       <div className={styles.formFoot}>
         <button

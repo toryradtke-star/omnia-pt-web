@@ -553,3 +553,85 @@ h1,h2,h3,h4 { margin: 0; font-weight: 800; line-height: 1.02; }
   .reassure, .book__lead p { display: none; }
   .book__main { min-height: 70svh; }
 }
+
+/* ============================================================
+   LEGAL PAGES (Privacy Policy / SMS Terms)
+   ============================================================ */
+.legal { max-width: 72ch; }
+.legal p { margin: 0 0 1.15em; color: color-mix(in oklab, var(--ink) 84%, transparent); }
+.legal p:last-child { margin-bottom: 0; }
+.legal strong { color: var(--forest); font-weight: 700; }
+.legal a { color: var(--accent-deep); text-decoration: underline; text-underline-offset: 3px; }
+.legal a:hover { color: var(--forest); }
+/* Both parents (.page-head__intro, .legal p) set size and colour, so the
+   combined selectors are what make this win rather than !important. */
+.legal__meta, .legal p.legal__meta, .page-head__intro.legal__meta {
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--ink) 55%, transparent); }
+.legal p.legal__meta { margin: 30px 0 12px; }
+.legal__foot { margin-top: 34px; padding-top: 22px; border-top: 1px solid color-mix(in oklab, var(--ink) 14%, transparent);
+  font-family: var(--font-mono); font-size: .85rem; }
+.legal__consent { display: flex; gap: 14px; align-items: flex-start; margin: 0 0 1.15em;
+  border: 1.5px solid color-mix(in oklab, var(--accent) 45%, transparent); border-radius: var(--radius);
+  background: color-mix(in oklab, var(--accent) 8%, var(--paper)); padding: 18px 20px; }
+.legal__consent-box { font-size: 1.3rem; line-height: 1.2; color: var(--accent-deep); flex: none; }
+.legal__consent p { margin: 0; font-size: .95rem; }
+/* Denser wording for the dialogs, where the copy shares space with a scrollbar. */
+.legal--compact { font-size: .95rem; max-width: none; }
+.legal--compact p { margin-bottom: 1em; }
+
+/* ============================================================
+   MODAL (privacy notice on entry, SMS terms beside the forms)
+   ============================================================ */
+.modal { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  padding: clamp(12px, 4vw, 40px); background: color-mix(in oklab, var(--ink) 66%, transparent);
+  backdrop-filter: blur(4px); animation: modal-fade .25s var(--ease); }
+.modal__panel { width: min(660px, 100%); max-height: min(86svh, 780px); display: flex; flex-direction: column;
+  background: var(--paper); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden;
+  animation: modal-rise .3s var(--ease); }
+.modal__panel:focus { outline: none; }
+.modal__head { padding: clamp(22px, 3.4vw, 34px) clamp(22px, 3.4vw, 38px) 0; }
+.modal__eyebrow { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent-deep); font-weight: 700; }
+.modal__title { font-family: var(--font-display); font-size: clamp(1.6rem, 3.4vw, 2.2rem); color: var(--forest);
+  letter-spacing: -.02em; margin-top: 10px; }
+.modal__body { padding: 20px clamp(22px, 3.4vw, 38px); overflow-y: auto; overscroll-behavior: contain; }
+.modal__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 16px clamp(22px, 3.4vw, 38px) clamp(20px, 3vw, 28px);
+  border-top: 1px solid color-mix(in oklab, var(--ink) 12%, transparent); }
+.modal__link { font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent-deep); text-decoration: underline; text-underline-offset: 3px; }
+.modal__link:hover { color: var(--forest); }
+@keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .modal, .modal__panel { animation: none; }
+}
+@media (max-width: 520px) {
+  .modal__foot { flex-direction: column-reverse; align-items: stretch; }
+  .modal__foot .btn { justify-content: center; }
+  .modal__link { text-align: center; }
+}
+
+/* ============================================================
+   SMS CONSENT CHECKBOX (contact form + landing form)
+   ============================================================ */
+.sms-consent { grid-column: 1 / -1; margin: 2px 0 18px; padding: 15px 17px;
+  border: 1.5px solid color-mix(in oklab, var(--ink) 15%, transparent); border-radius: 14px;
+  background: color-mix(in oklab, var(--paper) 65%, transparent); }
+.sms-consent__row { display: flex; gap: 12px; align-items: flex-start; cursor: pointer;
+  font-size: .85rem; line-height: 1.55; color: color-mix(in oklab, var(--ink) 80%, transparent);
+  font-family: var(--font-body); letter-spacing: 0; text-transform: none; margin: 0; }
+.sms-consent__row input[type="checkbox"] { flex: none; width: 20px; height: 20px; margin: 2px 0 0;
+  accent-color: var(--accent-deep); cursor: pointer; }
+.sms-consent a, .sms-consent__link { color: var(--accent-deep); text-decoration: underline; text-underline-offset: 3px; }
+.sms-consent__link { background: none; border: none; padding: 0; font: inherit; cursor: pointer; }
+.sms-consent a:hover, .sms-consent__link:hover { color: var(--forest); }
+.sms-consent__note { margin: 9px 0 0 32px; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .04em;
+  color: color-mix(in oklab, var(--ink) 52%, transparent); }
+
+/* ---------- footer legal links ---------- */
+.footer__legal { display: flex; gap: 18px; flex-wrap: wrap; }
+.footer__legal a { color: rgba(243,238,225,.78); text-decoration: underline; text-underline-offset: 3px;
+  transition: color .3s var(--ease); }
+.footer__legal a:hover { color: #fff; }

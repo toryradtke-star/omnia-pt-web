@@ -256,6 +256,12 @@ export default function FreeSessionPage() {
           </div>
           <div className={styles.footerBottom}>
             <span>© 2026 Omnia Wellness &amp; Recovery</span>
+            {/* This page asks for a phone number, so the SMS terms have to be
+                reachable from it without leaving the funnel mid-form. */}
+            <nav className={styles.footerLegal} aria-label="Legal">
+              <a href="/privacy-policy">Privacy Policy</a>
+              <a href="/sms-terms">SMS Terms &amp; Conditions</a>
+            </nav>
             <span>Superior · Duluth · Virtual — MN &amp; WI</span>
           </div>
         </div>

@@ -2,6 +2,8 @@
 
 import {useState} from "react";
 
+import {SmsConsent} from "./SmsConsent";
+
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
 
 const checks: Record<"name" | "email" | "phone" | "message", (v: string) => string> = {
@@ -16,6 +18,7 @@ type Props = {formNote: string};
 
 export function ContactForm({formNote}: Props) {
   const [errors, setErrors] = useState<Errors>({});
+  const [smsConsent, setSmsConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState(false);
@@ -47,6 +50,7 @@ export function ContactForm({formNote}: Props) {
         phone: data.get("phone"),
         topic: data.get("topic"),
         message: data.get("message"),
+        smsConsent,
         source: "contact-page",
       }),
     })
@@ -59,6 +63,7 @@ export function ContactForm({formNote}: Props) {
         }
         setSubmitted(true);
         form.reset();
+        setSmsConsent(false);
         requestAnimationFrame(() => {
           const banner = document.getElementById("success");
           if (banner) {
@@ -144,6 +149,7 @@ export function ContactForm({formNote}: Props) {
             />
             <div className="msg">{errors.message ?? ""}</div>
           </div>
+          <SmsConsent checked={smsConsent} onChange={setSmsConsent} />
         </div>
         <button className="btn btn--accent btn--lg" type="submit" disabled={sending}>
           {sending ? "Sending…" : (

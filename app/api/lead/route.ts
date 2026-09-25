@@ -1,5 +1,7 @@
 import {NextResponse} from "next/server";
 
+import {SMS_CONSENT_LABEL} from "@/lib/legal";
+
 /**
  * Lead intake → GoHighLevel.
  *
@@ -45,6 +47,7 @@ type LeadBody = {
   phone?: unknown;
   topic?: unknown;
   message?: unknown;
+  smsConsent?: unknown;
   source?: unknown;
 };
 
@@ -140,12 +143,21 @@ async function resolvePipeline(
 const LEAD_TAG = "website-lead";
 
 /**
- * Adds the tag via the dedicated endpoint, which appends. The upsert call must
+ * Added only when the SMS consent box was ticked, so texting can be gated on
+ * something queryable in GHL instead of on somebody's memory. It is never
+ * removed here: withdrawal happens by replying STOP, which GHL records itself,
+ * and a later un-ticked submission must not look like a withdrawal.
+ */
+const SMS_CONSENT_TAG = "sms-consent";
+
+/**
+ * Adds tags via the dedicated endpoint, which appends. The upsert call must
  * never carry a `tags` array: there it replaces the whole set and would strip
  * dryneedlingad / ultrasoundad off returning contacts.
  */
-async function addLeadTag(
+async function addLeadTags(
   contactId: string,
+  tags: string[],
   token: string,
   version: string,
 ): Promise<string> {
@@ -158,7 +170,7 @@ async function addLeadTag(
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify({tags: [LEAD_TAG]}),
+      body: JSON.stringify({tags}),
     });
 
     if (!response.ok) {
@@ -248,6 +260,9 @@ export async function POST(request: Request) {
   const phone = str(body.phone);
   const topic = str(body.topic);
   const message = str(body.message);
+  // Ticked box only. An absent or non-boolean value is a "no", never an
+  // accidental opt-in.
+  const smsConsent = body.smsConsent === true;
   const source: Source = body.source === "free-session" ? "free-session" : "contact-page";
 
   // Re-validate server-side. The client checks are for UX, not trust.
@@ -269,14 +284,30 @@ export async function POST(request: Request) {
     );
   }
 
+  // Proof of consent has to survive the conversation that produced it: carriers
+  // can ask the practice to show when someone opted in, to what wording, and
+  // from where. It goes in the notes as plain text, last, so the enquiry itself
+  // still reads first.
+  //
+  // Only a "yes" is written. GHL replaces this custom field on every upsert, so
+  // a "no" line from a later enquiry would quietly overwrite a real earlier
+  // opt-in — and a blank submission is not a withdrawal. Not consenting is
+  // recorded by the absence of the tag, which nothing here removes.
+  const consentRecord = smsConsent
+    ? `SMS consent: YES — box ticked ${new Date().toISOString()} on ${SOURCE_LABELS[source]}.\nWording shown: "${SMS_CONSENT_LABEL}"`
+    : "";
+
   // Topic and message share one multi-line field, topic first so it's the
   // first thing whoever opens the contact reads.
   const notes = [
     topic && `Interested in: ${topic}`,
     message,
+    consentRecord,
   ]
     .filter(Boolean)
     .join("\n\n");
+
+  const tags = smsConsent ? [LEAD_TAG, SMS_CONSENT_TAG] : [LEAD_TAG];
 
   const customFields: Array<{key: string; fieldValue: string}> = [];
   if (notes) customFields.push({key: FIELD_KEYS.notes, fieldValue: notes});
@@ -323,7 +354,7 @@ export async function POST(request: Request) {
       // neither of these may turn into a failed submission.
       const [tag, opportunity] = contactId
         ? await Promise.all([
-            addLeadTag(contactId, token, version),
+            addLeadTags(contactId, tags, token, version),
             createOpportunity(contactId, name, token, version),
           ])
         : (["skipped: no contact id returned", "skipped: no contact id returned"] as const);

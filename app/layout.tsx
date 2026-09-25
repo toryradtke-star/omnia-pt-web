@@ -9,6 +9,7 @@ import {siteSettingsQuery} from "@/sanity/lib/queries";
 import type {SiteSettings} from "@/sanity/lib/types";
 import {IconSprite} from "@/components/IconSprite";
 import {Chrome} from "@/components/Chrome";
+import {PrivacyGate} from "@/components/PrivacyGate";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -50,6 +51,8 @@ export default async function RootLayout({
       <body>
         <IconSprite />
         <Chrome settings={settings}>{children}</Chrome>
+        {/* Entry privacy notice — shown once per browser, on every route. */}
+        <PrivacyGate />
       </body>
       {process.env.NODE_ENV === "production" && (
         <>
