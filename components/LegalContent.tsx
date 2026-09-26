@@ -55,6 +55,9 @@ export function PrivacyPolicyBody({newTab}: BodyProps) {
         shared with third parties or affiliates for marketing purposes.
       </p>
       <p>
+        <strong>We do not share, sell or rent your personal information to third parties.</strong>
+      </p>
+      <p>
         <strong>Text messages.</strong> If you consent to receive SMS messages from{" "}
         {PRACTICE_NAME}, we may text you about your inquiry, scheduling, appointment reminders,
         follow-up communications, or billing questions. See our{" "}
