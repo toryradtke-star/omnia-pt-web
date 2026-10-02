@@ -142,7 +142,7 @@ export default async function HomePageRoute() {
                   {member.photo?.asset && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      className="team__img team__img--portrait"
+                      className="team__img"
                       src={urlFor(member.photo).width(900).auto("format").url()}
                       alt={member.photo.alt || ""}
                     />
