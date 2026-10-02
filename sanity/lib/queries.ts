@@ -35,6 +35,7 @@ export const homePageQuery = `*[_type == "homePage"][0]{
   teamHeading,
   teamName,
   teamBio,
+  teamMembers[]{_key, photo{..., asset->}, badgeName, badgeTitle, heading, name, bio, linkLabel, linkHref},
   servicesEyebrow,
   servicesHeading,
   servicesIntro,
@@ -89,3 +90,25 @@ export const contactPageQuery = `*[_type == "contactPage"][0]{
   mapEmbedUrl,
   formNote
 }`
+
+export const blogPostsQuery = `*[_type == "blogPost" && defined(slug.current)] | order(publishedAt desc){
+  title,
+  slug,
+  publishedAt,
+  excerpt,
+  mainImage{..., asset->}
+}`
+
+export const blogPostQuery = `*[_type == "blogPost" && slug.current == $slug][0]{
+  title,
+  slug,
+  publishedAt,
+  author,
+  excerpt,
+  mainImage{..., asset->},
+  body,
+  metaTitle,
+  metaDescription
+}`
+
+export const blogSlugsQuery = `*[_type == "blogPost" && defined(slug.current)].slug.current`

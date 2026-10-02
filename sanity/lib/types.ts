@@ -37,6 +37,18 @@ export type SiteSettings = {
   serviceArea: string
 }
 
+export type TeamMember = {
+  _key: string
+  photo?: SanityImage
+  badgeName?: string
+  badgeTitle?: string
+  heading?: string
+  name: string
+  bio?: PortableTextBlock[]
+  linkLabel?: string
+  linkHref?: string
+}
+
 export type HomePage = {
   heroImage: SanityImage
   heroEyebrow: string
@@ -57,6 +69,7 @@ export type HomePage = {
   teamHeading: string
   teamName: string
   teamBio: PortableTextBlock[]
+  teamMembers?: TeamMember[]
   servicesEyebrow: string
   servicesHeading: string
   servicesIntro: string
@@ -123,4 +136,19 @@ export type ContactPage = {
   servingArea: string
   mapEmbedUrl: string
   formNote: string
+}
+
+export type BlogPostSummary = {
+  title: string
+  slug: {current: string}
+  publishedAt?: string
+  excerpt?: string
+  mainImage?: SanityImage
+}
+
+export type BlogPost = BlogPostSummary & {
+  author?: string
+  body: PortableTextBlock[]
+  metaTitle?: string
+  metaDescription?: string
 }

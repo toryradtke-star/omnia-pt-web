@@ -133,6 +133,47 @@ export default async function HomePageRoute() {
                 </div>
               </Reveal>
             </div>
+            {home.teamMembers?.map((member, i) => (
+              <div
+                className={`team__grid team__grid--more${i % 2 === 0 ? " rev" : ""}`}
+                key={member._key}
+              >
+                <Reveal className="team__photo">
+                  {member.photo?.asset && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      className="team__img team__img--portrait"
+                      src={urlFor(member.photo).width(900).auto("format").url()}
+                      alt={member.photo.alt || ""}
+                    />
+                  )}
+                  {member.badgeName && (
+                    <div className="team__badge">
+                      <b>{member.badgeName}</b>
+                      <span>{member.badgeTitle}</span>
+                    </div>
+                  )}
+                </Reveal>
+                <Reveal>
+                  {member.heading && (
+                    <h2 className="section-title" style={{fontSize: "clamp(1.9rem,4vw,3.2rem)"}}>
+                      {member.heading}
+                    </h2>
+                  )}
+                  <div className="team__name">{member.name}</div>
+                  {member.bio && (
+                    <div className="team__body">
+                      <PortableText value={member.bio} />
+                    </div>
+                  )}
+                  {member.linkHref && member.linkLabel && (
+                    <Link href={member.linkHref} className="btn btn--ghost" style={{marginTop: 8}}>
+                      {member.linkLabel} <span className="arr">→</span>
+                    </Link>
+                  )}
+                </Reveal>
+              </div>
+            ))}
           </div>
         </section>
 
