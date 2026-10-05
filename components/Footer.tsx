@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {resolveHref} from "@/lib/href";
 import {Icon} from "./Icon";
 import type {SiteSettings} from "@/sanity/lib/types";
 
@@ -28,7 +29,7 @@ export function Footer({settings, showAddress = false}: Props) {
           <div className="footer__col">
             <h4>Explore</h4>
             {settings.footerExploreLinks?.map((link) => (
-              <Link key={link.href} href={link.href}>
+              <Link key={link.href} href={resolveHref(link.href)}>
                 {link.label}
               </Link>
             ))}

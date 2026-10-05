@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect, useState} from "react";
+import {resolveHref} from "@/lib/href";
 import {Icon} from "./Icon";
 import type {SiteSettings} from "@/sanity/lib/types";
 
@@ -10,12 +11,6 @@ type Props = {
   settings: SiteSettings;
   variant?: "transparent" | "solid";
 };
-
-// Anchor-only hrefs (e.g. "#why") in Sanity should always resolve against the homepage,
-// not against the current route.
-function resolveHref(href: string) {
-  return href.startsWith("#") ? `/${href}` : href;
-}
 
 function isActive(href: string, pathname: string) {
   if (href.startsWith("#")) return false;
