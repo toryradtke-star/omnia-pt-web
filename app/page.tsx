@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {urlFor} from "@/sanity/lib/image";
 import {homePageQuery, servicesPageQuery} from "@/sanity/lib/queries";
 import type {HomePage, ServicesPage} from "@/sanity/lib/types";
@@ -24,8 +24,8 @@ function MissionHeading({text}: {text: string}) {
 
 export default async function HomePageRoute() {
   const [home, services] = await Promise.all([
-    client.fetch<HomePage>(homePageQuery),
-    client.fetch<ServicesPage>(servicesPageQuery),
+    sanityFetch<HomePage>({query: homePageQuery, tags: ["homePage"]}),
+    sanityFetch<ServicesPage>({query: servicesPageQuery, tags: ["servicesPage"]}),
   ]);
 
   const previewServices = services?.services?.slice(0, 9) ?? [];

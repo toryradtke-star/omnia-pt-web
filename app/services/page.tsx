@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {homePageQuery, servicesPageQuery} from "@/sanity/lib/queries";
 import type {HomePage, ServicesPage} from "@/sanity/lib/types";
 
@@ -10,8 +10,8 @@ import {Reveal} from "@/components/Reveal";
 
 export default async function ServicesPageRoute() {
   const [page, home] = await Promise.all([
-    client.fetch<ServicesPage>(servicesPageQuery),
-    client.fetch<HomePage>(homePageQuery),
+    sanityFetch<ServicesPage>({query: servicesPageQuery, tags: ["servicesPage"]}),
+    sanityFetch<HomePage>({query: homePageQuery, tags: ["homePage"]}),
   ]);
 
   return (

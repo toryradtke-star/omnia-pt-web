@@ -2,7 +2,7 @@ import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 import type {PortableTextComponents} from "@portabletext/react";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {contactPageQuery} from "@/sanity/lib/queries";
 import type {ContactPage} from "@/sanity/lib/types";
 
@@ -36,7 +36,7 @@ const introComponents: PortableTextComponents = {
 };
 
 export default async function ContactPageRoute() {
-  const page = await client.fetch<ContactPage>(contactPageQuery);
+  const page = await sanityFetch<ContactPage>({query: contactPageQuery, tags: ["contactPage"]});
 
   const mapsQuery = encodeURIComponent(page.addressLines?.join(", ") ?? "");
   const directionsUrl = `https://maps.google.com/?q=${mapsQuery}`;
