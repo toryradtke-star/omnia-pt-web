@@ -4,7 +4,7 @@ import {GoogleAnalytics} from "@next/third-parties/google";
 import Script from "next/script";
 import "./globals.css";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {siteSettingsQuery} from "@/sanity/lib/queries";
 import type {SiteSettings} from "@/sanity/lib/types";
 import {IconSprite} from "@/components/IconSprite";
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{children: React.ReactNode}>) {
-  const settings = await client.fetch<SiteSettings>(siteSettingsQuery);
+  const settings = await sanityFetch<SiteSettings>({query: siteSettingsQuery, tags: ["siteSettings"]});
 
   return (
     <html

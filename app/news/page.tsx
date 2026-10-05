@@ -1,7 +1,7 @@
 import type {Metadata} from "next";
 import Link from "next/link";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {urlFor} from "@/sanity/lib/image";
 import {formatDate} from "@/lib/date";
 import {blogPostsQuery} from "@/sanity/lib/queries";
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  const posts = await client.fetch<BlogPostSummary[]>(blogPostsQuery);
+  const posts = await sanityFetch<BlogPostSummary[]>({query: blogPostsQuery, tags: ["blogPost"]});
 
   return (
     <>

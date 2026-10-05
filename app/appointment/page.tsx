@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {appointmentPageQuery, siteSettingsQuery} from "@/sanity/lib/queries";
 import type {AppointmentPage, SiteSettings} from "@/sanity/lib/types";
 
@@ -8,8 +8,8 @@ import {Icon} from "@/components/Icon";
 
 export default async function AppointmentPageRoute() {
   const [page, settings] = await Promise.all([
-    client.fetch<AppointmentPage>(appointmentPageQuery),
-    client.fetch<SiteSettings>(siteSettingsQuery),
+    sanityFetch<AppointmentPage>({query: appointmentPageQuery, tags: ["appointmentPage"]}),
+    sanityFetch<SiteSettings>({query: siteSettingsQuery, tags: ["siteSettings"]}),
   ]);
 
   return (

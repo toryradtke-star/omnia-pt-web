@@ -3,7 +3,7 @@ import Link from "next/link";
 import {notFound} from "next/navigation";
 import {PortableText} from "@portabletext/react";
 
-import {client} from "@/sanity/lib/client";
+import {sanityFetch} from "@/sanity/lib/fetch";
 import {urlFor} from "@/sanity/lib/image";
 import {formatDate} from "@/lib/date";
 import {blogPostQuery, blogSlugsQuery} from "@/sanity/lib/queries";
@@ -12,13 +12,13 @@ import type {BlogPost} from "@/sanity/lib/types";
 type Props = {params: Promise<{slug: string}>};
 
 export async function generateStaticParams() {
-  const slugs = await client.fetch<string[]>(blogSlugsQuery);
+  const slugs = await sanityFetch<string[]>({query: blogSlugsQuery, tags: ["blogPost"]});
   return slugs.map((slug) => ({slug}));
 }
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {slug} = await params;
-  const post = await client.fetch<BlogPost | null>(blogPostQuery, {slug});
+  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`]});
   if (!post) return {};
   const image = post.mainImage?.asset ? urlFor(post.mainImage).width(1200).auto("format").url() : undefined;
   return {
@@ -30,7 +30,7 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 
 export default async function NewsPostPage({params}: Props) {
   const {slug} = await params;
-  const post = await client.fetch<BlogPost | null>(blogPostQuery, {slug});
+  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`]});
   if (!post) notFound();
 
   return (
