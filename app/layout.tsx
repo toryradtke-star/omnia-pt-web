@@ -10,6 +10,8 @@ import type {SiteSettings} from "@/sanity/lib/types";
 import {IconSprite} from "@/components/IconSprite";
 import {Chrome} from "@/components/Chrome";
 import {PrivacyGate} from "@/components/PrivacyGate";
+import {ClinicJsonLd} from "@/components/ClinicJsonLd";
+import {SITE_URL} from "@/lib/site";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -33,6 +35,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Omnia Wellness & Recovery — Physical Therapy in Superior & Duluth",
   description:
     "Expert orthopedic physical therapy and performance care — personalized, one-on-one, and built entirely around your goals.",
@@ -49,6 +52,7 @@ export default async function RootLayout({
       className={`${bricolage.variable} ${hanken.variable} ${spaceMono.variable}`}
     >
       <body>
+        <ClinicJsonLd settings={settings} />
         <IconSprite />
         <Chrome settings={settings}>{children}</Chrome>
         {/* Entry privacy notice — shown once per browser, on every route. */}
