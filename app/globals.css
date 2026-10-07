@@ -135,7 +135,7 @@ h1,h2,h3,h4 { margin: 0; font-weight: 800; line-height: 1.02; }
 .nav__brand .mark { width: 26px; height: 26px; color: var(--moss-soft); transition: color .4s var(--ease); }
 .nav__links { display: flex; align-items: center; gap: clamp(18px, 2.4vw, 40px); }
 .nav__link {
-  position: relative; color: rgba(255,255,255,.92);
+  position: relative; white-space: nowrap; color: rgba(255,255,255,.92);
   font-size: .98rem; font-weight: 500;
   transition: color .3s var(--ease);
 }
@@ -145,6 +145,7 @@ h1,h2,h3,h4 { margin: 0; font-weight: 800; line-height: 1.02; }
 }
 .nav__link:hover::after, .nav__link.is-active::after { width: 100%; }
 .nav__cta {
+  white-space: nowrap;
   background: #fff; color: var(--forest);
   padding: .85em 1.5em; border-radius: 999px;
   font-family: var(--font-mono); font-weight: 700; font-size: .78rem;
@@ -514,10 +515,14 @@ h1,h2,h3,h4 { margin: 0; font-weight: 800; line-height: 1.02; }
   .footer__top { grid-template-columns: 1fr 1fr; }
   .footer__brand { grid-column: 1 / -1; }
 }
-@media (max-width: 680px) {
-  body { font-size: 16px; }
+/* Seven links plus the CTA need ~1040px; below that, use the menu button. */
+@media (max-width: 1040px) {
   .nav__links { display: none; }
   .nav__toggle { display: inline-flex; }
+  .nav__cta { margin-left: auto; margin-right: 12px; }
+}
+@media (max-width: 680px) {
+  body { font-size: 16px; }
   .svc-grid, .help-grid, .mission__stats, .footer__top { grid-template-columns: 1fr; }
   .nav__cta { display: none; }
   .hero { padding-bottom: 90px; }
