@@ -476,6 +476,7 @@ h1,h2,h3,h4 { margin: 0; font-weight: 800; line-height: 1.02; }
 .news-card__title { font-family: var(--font-display); font-size: clamp(1.5rem, 2.6vw, 2.1rem); color: var(--forest); letter-spacing: -.02em; margin: 10px 0 12px; }
 .news-card__title a:hover { color: var(--accent-deep); }
 .news-card p { margin: 0; color: color-mix(in oklab, var(--ink) 84%, transparent); }
+.news-card--text { grid-template-columns: 1fr; }
 .post__img { width: 100%; max-width: 760px; aspect-ratio: 4/3.2; object-fit: cover; object-position: 50% 30%; border-radius: var(--radius-lg); display: block; box-shadow: var(--shadow-sm); margin: 0 0 clamp(28px, 4vw, 44px); }
 .post .legal ul { list-style: disc; margin: 0 0 1.15em; padding-left: 1.2em; color: color-mix(in oklab, var(--ink) 84%, transparent); }
 .post .legal li { margin-bottom: .4em; }

@@ -18,7 +18,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {slug} = await params;
-  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`]});
+  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`, "homePage"]});
   if (!post) return {};
   const image = post.mainImage?.asset ? urlFor(post.mainImage).width(1200).auto("format").url() : undefined;
   return {
@@ -30,7 +30,7 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 
 export default async function NewsPostPage({params}: Props) {
   const {slug} = await params;
-  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`]});
+  const post = await sanityFetch<BlogPost | null>({query: blogPostQuery, params: {slug}, tags: ["blogPost", `blogPost:${slug}`, "homePage"]});
   if (!post) notFound();
 
   return (

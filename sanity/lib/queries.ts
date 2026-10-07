@@ -91,12 +91,16 @@ export const contactPageQuery = `*[_type == "contactPage"][0]{
   formNote
 }`
 
+// Posts without their own photo use the home page's clinic photo, so every
+// news card and post has an image (the card layout assumes one).
+const postImage = `"mainImage": coalesce(mainImage{..., asset->}, *[_id == "homePage"][0].whyImage{..., asset->})`
+
 export const blogPostsQuery = `*[_type == "blogPost" && defined(slug.current)] | order(publishedAt desc){
   title,
   slug,
   publishedAt,
   excerpt,
-  mainImage{..., asset->}
+  ${postImage}
 }`
 
 export const blogPostQuery = `*[_type == "blogPost" && slug.current == $slug][0]{
@@ -105,7 +109,7 @@ export const blogPostQuery = `*[_type == "blogPost" && slug.current == $slug][0]
   publishedAt,
   author,
   excerpt,
-  mainImage{..., asset->},
+  ${postImage},
   body,
   metaTitle,
   metaDescription

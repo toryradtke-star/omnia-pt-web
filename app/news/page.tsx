@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsPage() {
-  const posts = await sanityFetch<BlogPostSummary[]>({query: blogPostsQuery, tags: ["blogPost"]});
+  const posts = await sanityFetch<BlogPostSummary[]>({query: blogPostsQuery, tags: ["blogPost", "homePage"]});
 
   return (
     <>
@@ -35,7 +35,7 @@ export default async function NewsPage() {
           <div className="wrap">
             <div className="news-list">
               {posts.map((post, i) => (
-                <Reveal as="article" className="news-card" key={post.slug.current} delayIndex={i}>
+                <Reveal as="article" className={post.mainImage?.asset ? "news-card" : "news-card news-card--text"} key={post.slug.current} delayIndex={i}>
                   {post.mainImage?.asset && (
                     <Link href={`/news/${post.slug.current}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
