@@ -148,6 +148,9 @@ export type BlogPostSummary = {
 
 export type BlogPost = BlogPostSummary & {
   author?: string
+  reviewedBy?: string
+  reviewedAt?: string
+  _updatedAt?: string
   body: PortableTextBlock[]
   metaTitle?: string
   metaDescription?: string
