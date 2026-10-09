@@ -58,7 +58,10 @@ export default async function RootLayout({
         {/* Entry privacy notice — shown once per browser, on every route. */}
         <PrivacyGate />
       </body>
-      {process.env.NODE_ENV === "production" && (
+      {/* Only the live site reports to GA4 and Google Ads: a local `next start` or a
+          Vercel preview is a production build too, and was showing up in GA4 as
+          localhost referrals. */}
+      {process.env.VERCEL_ENV === "production" && (
         <>
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
           <Script id="gads-config" strategy="afterInteractive">
