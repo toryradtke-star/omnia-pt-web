@@ -1,3 +1,4 @@
+import type {Metadata} from "next";
 import Link from "next/link";
 
 import {sanityFetch} from "@/sanity/lib/fetch";
@@ -5,6 +6,8 @@ import {appointmentPageQuery, siteSettingsQuery} from "@/sanity/lib/queries";
 import type {AppointmentPage, SiteSettings} from "@/sanity/lib/types";
 
 import {Icon} from "@/components/Icon";
+
+export const metadata: Metadata = {alternates: {canonical: "/appointment"}};
 
 export default async function AppointmentPageRoute() {
   const [page, settings] = await Promise.all([

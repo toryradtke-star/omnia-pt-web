@@ -1,3 +1,4 @@
+import type {Metadata} from "next";
 import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 
@@ -9,6 +10,8 @@ import type {HomePage, ServicesPage} from "@/sanity/lib/types";
 import {Icon} from "@/components/Icon";
 import {Reveal} from "@/components/Reveal";
 import {Faq} from "@/components/Faq";
+
+export const metadata: Metadata = {alternates: {canonical: "/"}};
 
 function MissionHeading({text}: {text: string}) {
   // Wrap the words "healthier" and "recover" in <em> to match the design.

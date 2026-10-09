@@ -1,3 +1,4 @@
+import type {Metadata} from "next";
 import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 
@@ -7,6 +8,8 @@ import type {HomePage, ServicesPage} from "@/sanity/lib/types";
 
 import {Icon} from "@/components/Icon";
 import {Reveal} from "@/components/Reveal";
+
+export const metadata: Metadata = {alternates: {canonical: "/services"}};
 
 export default async function ServicesPageRoute() {
   const [page, home] = await Promise.all([

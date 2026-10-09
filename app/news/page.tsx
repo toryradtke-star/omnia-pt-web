@@ -10,6 +10,7 @@ import type {BlogPostSummary} from "@/sanity/lib/types";
 import {Reveal} from "@/components/Reveal";
 
 export const metadata: Metadata = {
+  alternates: {canonical: "/news"},
   title: "News — Omnia Wellness & Recovery",
   description: "Updates from Omnia Wellness & Recovery, physical therapy in Superior and Duluth.",
 };

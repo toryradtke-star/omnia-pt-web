@@ -4,6 +4,7 @@ import Link from "next/link";
 import {SmsTermsBody, SmsConsentQuote} from "@/components/LegalContent";
 
 export const metadata: Metadata = {
+  alternates: {canonical: "/sms-terms"},
   title: "SMS Terms & Conditions — Omnia Wellness & Recovery",
   description:
     "What you agree to when you opt in to text messages from Omnia Wellness & Recovery, and how to opt back out.",

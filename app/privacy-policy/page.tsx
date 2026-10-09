@@ -5,6 +5,7 @@ import {PrivacyPolicyBody} from "@/components/LegalContent";
 import {PRIVACY_EFFECTIVE_DATE} from "@/lib/legal";
 
 export const metadata: Metadata = {
+  alternates: {canonical: "/privacy-policy"},
   title: "Privacy Policy — Omnia Wellness & Recovery",
   description:
     "How Omnia Wellness & Recovery collects, uses, and shares information submitted through our website or when you contact the practice.",

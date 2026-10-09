@@ -1,3 +1,4 @@
+import type {Metadata} from "next";
 import Link from "next/link";
 import {PortableText} from "@portabletext/react";
 import type {PortableTextComponents} from "@portabletext/react";
@@ -9,6 +10,8 @@ import type {ContactPage} from "@/sanity/lib/types";
 import {Icon} from "@/components/Icon";
 import {Reveal} from "@/components/Reveal";
 import {ContactForm} from "@/components/ContactForm";
+
+export const metadata: Metadata = {alternates: {canonical: "/contact"}};
 
 const introComponents: PortableTextComponents = {
   marks: {

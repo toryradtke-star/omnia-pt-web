@@ -6,6 +6,7 @@ import {Reveal} from "@/components/Reveal";
 import styles from "./free-session.module.css";
 
 export const metadata: Metadata = {
+  alternates: {canonical: "/free-session"},
   title: "Claim Your Free Session — Omnia Wellness & Recovery",
   description:
     "Limited to 10 people: a free physical therapy session with a Doctor of Physical Therapy in Superior, WI and Duluth, MN — or virtual across MN & WI.",
