@@ -3,6 +3,10 @@ import type {MetadataRoute} from "next";
 import {sanityFetch} from "@/sanity/lib/fetch";
 import {SITE_URL} from "@/lib/site";
 
+// Rendered per request: a prerendered sitemap ignored the Sanity webhook and never listed new posts.
+// The Sanity fetch is still tag-cached, so this stays cheap.
+export const dynamic = "force-dynamic";
+
 // /free-session is an ad landing page, so it stays out of the sitemap.
 const STATIC_ROUTES = ["", "/services", "/appointment", "/contact", "/news"];
 
