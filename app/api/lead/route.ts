@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 
+import {channelOf, channelTag, cleanAttribution, describe} from "@/lib/attribution";
 import {SMS_CONSENT_LABEL} from "@/lib/legal";
 
 /**
@@ -49,6 +50,7 @@ type LeadBody = {
   message?: unknown;
   smsConsent?: unknown;
   source?: unknown;
+  attribution?: unknown;
 };
 
 const SOURCE_LABELS: Record<Source, string> = {
@@ -264,6 +266,10 @@ export async function POST(request: Request) {
   // accidental opt-in.
   const smsConsent = body.smsConsent === true;
   const source: Source = body.source === "free-session" ? "free-session" : "contact-page";
+  // Where the visitor came from (ad click ids, campaign tags, referrer).
+  const attribution = cleanAttribution(body.attribution);
+  const channel = channelOf(attribution);
+  const cameFrom = describe(attribution);
 
   // Re-validate server-side. The client checks are for UX, not trust.
   if (!name) return NextResponse.json({error: "Name is required."}, {status: 400});
@@ -302,12 +308,17 @@ export async function POST(request: Request) {
   const notes = [
     topic && `Interested in: ${topic}`,
     message,
+    `Came from: ${channel.label}${cameFrom ? ` (${cameFrom})` : ""}`,
     consentRecord,
   ]
     .filter(Boolean)
     .join("\n\n");
 
-  const tags = smsConsent ? [LEAD_TAG, SMS_CONSENT_TAG] : [LEAD_TAG];
+  // The channel tag is how lead reporting tells a Google Ads enquiry from a
+  // direct one. HighLevel's API takes no attribution or opportunity source,
+  // and tags only ever append, so a contact who first came from a Meta lead
+  // ad keeps that ad's source on their opportunity.
+  const tags = [LEAD_TAG, ...(smsConsent ? [SMS_CONSENT_TAG] : []), channelTag(channel)];
 
   const customFields: Array<{key: string; fieldValue: string}> = [];
   if (notes) customFields.push({key: FIELD_KEYS.notes, fieldValue: notes});
@@ -365,6 +376,7 @@ export async function POST(request: Request) {
         apiVersion: version,
         tag,
         opportunity,
+        channel: channel.label,
       });
     }
 

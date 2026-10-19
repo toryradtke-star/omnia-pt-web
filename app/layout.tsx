@@ -9,6 +9,7 @@ import {siteSettingsQuery} from "@/sanity/lib/queries";
 import type {SiteSettings} from "@/sanity/lib/types";
 import {IconSprite} from "@/components/IconSprite";
 import {Chrome} from "@/components/Chrome";
+import {AttributionCapture} from "@/components/AttributionCapture";
 import {PrivacyGate} from "@/components/PrivacyGate";
 import {ClinicJsonLd} from "@/components/ClinicJsonLd";
 import {SITE_URL} from "@/lib/site";
@@ -57,6 +58,8 @@ export default async function RootLayout({
         <Chrome settings={settings}>{children}</Chrome>
         {/* Entry privacy notice — shown once per browser, on every route. */}
         <PrivacyGate />
+        {/* Remembers which ad or site a visit came from, for the lead form. */}
+        <AttributionCapture />
       </body>
       {/* Only the live site reports to GA4 and Google Ads: a local `next start` or a
           Vercel preview is a production build too, and was showing up in GA4 as

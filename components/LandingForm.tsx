@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import styles from "@/app/free-session/free-session.module.css";
+import {readAttribution} from "@/lib/attribution";
 import {SmsConsent} from "./SmsConsent";
 
 type FieldId = "name" | "phone" | "email" | "topic";
@@ -98,6 +99,7 @@ export function LandingForm() {
       message: values.message.trim(),
       smsConsent,
       source: "free-session",
+      attribution: readAttribution(),
     };
 
     setSending(true);

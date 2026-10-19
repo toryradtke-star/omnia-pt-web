@@ -2,6 +2,8 @@
 
 import {useState} from "react";
 
+import {readAttribution} from "@/lib/attribution";
+
 import {SmsConsent} from "./SmsConsent";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
@@ -52,6 +54,7 @@ export function ContactForm({formNote}: Props) {
         message: data.get("message"),
         smsConsent,
         source: "contact-page",
+        attribution: readAttribution(),
       }),
     })
       .then((r) => {
