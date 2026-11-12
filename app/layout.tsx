@@ -10,6 +10,7 @@ import type {SiteSettings} from "@/sanity/lib/types";
 import {IconSprite} from "@/components/IconSprite";
 import {Chrome} from "@/components/Chrome";
 import {AttributionCapture} from "@/components/AttributionCapture";
+import {CallTracking} from "@/components/CallTracking";
 import {PrivacyGate} from "@/components/PrivacyGate";
 import {ClinicJsonLd} from "@/components/ClinicJsonLd";
 import {SITE_URL} from "@/lib/site";
@@ -60,6 +61,8 @@ export default async function RootLayout({
         <PrivacyGate />
         {/* Remembers which ad or site a visit came from, for the lead form. */}
         <AttributionCapture />
+        {/* Counts taps on any phone number as a GA4 click_to_call event. */}
+        <CallTracking />
       </body>
       {/* Only the live site reports to GA4 and Google Ads: a local `next start` or a
           Vercel preview is a production build too, and was showing up in GA4 as
