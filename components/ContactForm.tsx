@@ -5,6 +5,8 @@ import {useState} from "react";
 import {readAttribution} from "@/lib/attribution";
 
 import {SmsConsent} from "./SmsConsent";
+import {HoneypotField, honeypotValue, useFillTimer} from "./SpamGuard";
+import {HONEYPOT_FIELD} from "@/lib/spam";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "message", string>>;
 
@@ -24,6 +26,7 @@ export function ContactForm({formNote}: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState(false);
+  const elapsed = useFillTimer();
 
   function clearError(name: keyof Errors) {
     if (errors[name]) setErrors((e) => ({...e, [name]: undefined}));
@@ -55,6 +58,8 @@ export function ContactForm({formNote}: Props) {
         smsConsent,
         source: "contact-page",
         attribution: readAttribution(),
+        [HONEYPOT_FIELD]: honeypotValue(form),
+        elapsedMs: elapsed(),
       }),
     })
       .then((r) => {
@@ -154,6 +159,7 @@ export function ContactForm({formNote}: Props) {
           </div>
           <SmsConsent checked={smsConsent} onChange={setSmsConsent} />
         </div>
+        <HoneypotField />
         <button className="btn btn--accent btn--lg" type="submit" disabled={sending}>
           {sending ? "Sending…" : (
             <>

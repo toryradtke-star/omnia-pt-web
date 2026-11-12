@@ -4,6 +4,8 @@ import {useState} from "react";
 import styles from "@/app/free-session/free-session.module.css";
 import {readAttribution} from "@/lib/attribution";
 import {SmsConsent} from "./SmsConsent";
+import {HoneypotField, honeypotValue, useFillTimer} from "./SpamGuard";
+import {HONEYPOT_FIELD} from "@/lib/spam";
 
 type FieldId = "name" | "phone" | "email" | "topic";
 
@@ -64,6 +66,7 @@ export function LandingForm() {
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const elapsed = useFillTimer();
 
   function update(id: keyof Values, value: string) {
     setValues((prev) => ({...prev, [id]: value}));
@@ -100,6 +103,8 @@ export function LandingForm() {
       smsConsent,
       source: "free-session",
       attribution: readAttribution(),
+      [HONEYPOT_FIELD]: honeypotValue(e.currentTarget),
+      elapsedMs: elapsed(),
     };
 
     setSending(true);
@@ -234,6 +239,7 @@ export function LandingForm() {
           onChange={setSmsConsent}
         />
       </div>
+      <HoneypotField />
       <div className={styles.formFoot}>
         <button
           className={`${styles.btn} ${styles.btnLg} ${styles.btnBlock}`}

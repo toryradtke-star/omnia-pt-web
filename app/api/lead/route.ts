@@ -2,6 +2,7 @@ import {NextResponse} from "next/server";
 
 import {channelOf, channelTag, cleanAttribution, describe} from "@/lib/attribution";
 import {SMS_CONSENT_LABEL} from "@/lib/legal";
+import {HONEYPOT_FIELD, assessLead} from "@/lib/spam";
 
 /**
  * Lead intake → GoHighLevel.
@@ -51,6 +52,10 @@ type LeadBody = {
   smsConsent?: unknown;
   source?: unknown;
   attribution?: unknown;
+  /** Hidden honeypot input; see lib/spam.ts. */
+  [HONEYPOT_FIELD]?: unknown;
+  /** Time from the form appearing to submit, in ms. */
+  elapsedMs?: unknown;
 };
 
 const SOURCE_LABELS: Record<Source, string> = {
@@ -151,6 +156,13 @@ const LEAD_TAG = "website-lead";
  * and a later un-ticked submission must not look like a withdrawal.
  */
 const SMS_CONSENT_TAG = "sms-consent";
+
+/**
+ * The only tag a suspected bot gets. Without `website-lead` no workflow fires,
+ * so nothing is emailed or texted, but the contact is kept in case the
+ * screening was wrong about a real person.
+ */
+const SPAM_TAG = "suspected-spam";
 
 /**
  * Adds tags via the dedicated endpoint, which appends. The upsert call must
@@ -280,6 +292,27 @@ export async function POST(request: Request) {
     return NextResponse.json({error: "A valid phone number is required."}, {status: 400});
   }
 
+  const verdict = assessLead({
+    name,
+    email,
+    phone,
+    honeypot: str(body[HONEYPOT_FIELD]),
+    elapsedMs: typeof body.elapsedMs === "number" && Number.isFinite(body.elapsedMs)
+      ? body.elapsedMs
+      : null,
+  });
+
+  // A filled honeypot is certain: answer like a success so the bot moves on,
+  // and keep it out of the CRM entirely.
+  if (verdict.kind === "bot") {
+    console.warn(`[lead] Dropped bot submission (${verdict.reasons.join(", ")}).`);
+    return NextResponse.json({ok: true});
+  }
+  const suspect = verdict.kind === "suspect";
+  if (suspect) {
+    console.warn(`[lead] Suspected spam, saved without follow-up (${verdict.reasons.join(", ")}).`);
+  }
+
   // No credential → fail loudly. The old contact form showed a fake success
   // banner and dropped the lead; never do that again.
   if (!token || !locationId) {
@@ -306,6 +339,7 @@ export async function POST(request: Request) {
   // Topic and message share one multi-line field, topic first so it's the
   // first thing whoever opens the contact reads.
   const notes = [
+    suspect && `Suspected spam (${verdict.reasons.join(", ")}). No automated follow-up was sent.`,
     topic && `Interested in: ${topic}`,
     message,
     `Came from: ${channel.label}${cameFrom ? ` (${cameFrom})` : ""}`,
@@ -318,7 +352,11 @@ export async function POST(request: Request) {
   // direct one. HighLevel's API takes no attribution or opportunity source,
   // and tags only ever append, so a contact who first came from a Meta lead
   // ad keeps that ad's source on their opportunity.
-  const tags = [LEAD_TAG, ...(smsConsent ? [SMS_CONSENT_TAG] : []), channelTag(channel)];
+  // A suspected bot gets the spam tag alone: no lead tag (so no alert or
+  // automated messages) and no consent tag (so it can never be texted).
+  const tags = suspect
+    ? [SPAM_TAG]
+    : [LEAD_TAG, ...(smsConsent ? [SMS_CONSENT_TAG] : []), channelTag(channel)];
 
   const customFields: Array<{key: string; fieldValue: string}> = [];
   if (notes) customFields.push({key: FIELD_KEYS.notes, fieldValue: notes});
@@ -366,7 +404,10 @@ export async function POST(request: Request) {
       const [tag, opportunity] = contactId
         ? await Promise.all([
             addLeadTags(contactId, tags, token, version),
-            createOpportunity(contactId, name, token, version),
+            // Suspects stay out of the pipeline so lead counts stay honest.
+            suspect
+              ? Promise.resolve("skipped: suspected spam")
+              : createOpportunity(contactId, name, token, version),
           ])
         : (["skipped: no contact id returned", "skipped: no contact id returned"] as const);
 
